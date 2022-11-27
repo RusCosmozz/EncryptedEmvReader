@@ -226,7 +226,7 @@ public class PaycardActivity extends AppCompatActivity {
                     startActivityForResult(intent, 0);
                 }
             }
-        }
+        } 
 
         // Get encryption key
         byte[] getEncryptionKey = KeyUtil.getEncryptionKey(this);
