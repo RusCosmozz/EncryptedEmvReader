@@ -134,6 +134,9 @@ public class ReadPaycard implements Runnable {
     byte[] aflData = null;
 
     byte[] cdol_1 = null, cdol_2 = null;
+
+    byte[] cdol1Constructed = null;
+
     @Override
     public void run() {
         LogUtil.d(TAG, "\"" + TAG + "\": Thread run");
@@ -170,7 +173,7 @@ public class ReadPaycard implements Runnable {
         // AID (Application Identifier)
         getAid();
         if (aid != null) {
-            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.aid) + " [4F]\": " + Arrays.toString(aid));
+//            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.aid) + " [4F]\": " + Arrays.toString(aid));
 
             aidHexadecimal = HexUtil.bytesToHexadecimal(aid);
             if (aidHexadecimal != null) {
@@ -185,7 +188,7 @@ public class ReadPaycard implements Runnable {
         // FCI (File Control Information)
         getFci();
         if (rFci != null) {
-            LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.fci) + "\": " + Arrays.toString(rFci));
+//            LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.fci) + "\": " + Arrays.toString(rFci));
             String rFciHexadecimal = HexUtil.bytesToHexadecimal(rFci);
             if (rFciHexadecimal != null) {
                 LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.fci) + "\" Hexadecimal: " + rFciHexadecimal);
@@ -207,7 +210,7 @@ public class ReadPaycard implements Runnable {
         if (dfName == null) {
             dfName = new TlvUtil().getTlvValue(rFci, ReadPaycardConstsHelper.DEDICATED_FILE_NAME);
             if (dfName != null) {
-                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.df_name) + " [84]\": " + Arrays.toString(dfName));
+//                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.df_name) + " [84]\": " + Arrays.toString(dfName));
                 dfNameHexadecimal = HexUtil.bytesToHexadecimal(dfName);
                 if (dfNameHexadecimal != null) {
                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.df_name) + " [84]\" Hexadecimal: " + dfNameHexadecimal);
@@ -222,7 +225,7 @@ public class ReadPaycard implements Runnable {
         if (fciTemplate == null) {
             fciTemplate = new TlvUtil().getTlvValue(rFci, ReadPaycardConstsHelper.FCI_TEMPLATE);
             if (fciTemplate != null) {
-                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.fci_template) + " [A5]\": " + Arrays.toString(fciTemplate));
+//                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.fci_template) + " [A5]\": " + Arrays.toString(fciTemplate));
                 fciTemplateHexadecimal = HexUtil.bytesToHexadecimal(fciTemplate);
                 if (fciTemplateHexadecimal != null) {
                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.fci_template) + " [A5]\" Hexadecimal: " + fciTemplateHexadecimal);
@@ -266,7 +269,7 @@ public class ReadPaycard implements Runnable {
             }
 
             // CDOL1 Constructed
-            byte[] cdol1Constructed = new GacUtil().fillCdol_1(cdol_1);
+            cdol1Constructed = new GacUtil().fillCdol_1(cdol_1);
 
             if (cdol1Constructed != null) {
                 LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.cdol_1) + " Constructed\": " + Arrays.toString(cdol1Constructed));
@@ -277,8 +280,52 @@ public class ReadPaycard implements Runnable {
                 }
             }
             // - CDOL1 Constructed
+            // First GAC (Generate Application Cryptogram)
+            byte[] cFirstGac = new GacUtil().cGac(cdol1Constructed), rFirstGac = null; // C-APDU & R-APDU
+
+            if (cFirstGac != null) {
+//                LogUtil.d(TAG, "EMV (C-APDU) - Command: \"" + mContext.getString(R.string.gac) + "\"; Data: \"First " + mContext.getString(R.string.cdol_1) + "\": " + Arrays.toString(cFirstGac));
+                LogUtil.d(TAG, "EMV (C-APDU) - Command: \"" + mContext.getString(R.string.gac) + "\"; Data: \"First " + mContext.getString(R.string.cdol_1) + "\" Hexadecimal: " + HexUtil.bytesToHexadecimal(cFirstGac));
+                try {
+                    rFirstGac = mIsoDep.transceive(cFirstGac);
+                } catch (Exception e) {
+                    LogUtil.e(TAG, e.getMessage());
+                    LogUtil.e(TAG, e.toString());
+
+                    e.printStackTrace();
+                }
+            }
+            if (rFirstGac != null) {
+//                LogUtil.d(TAG, "EMV (R-APDU) - Command: \"" + mContext.getString(R.string.gac) + "\"; Data: \"First " + mContext.getString(R.string.cdol_1) + "\": " + Arrays.toString(rFirstGac));
+                String rFirstGacHexadecimal = HexUtil.bytesToHexadecimal(rFirstGac);
+                if (rFirstGacHexadecimal != null) {
+                    LogUtil.d(TAG, "EMV (R-APDU) - Command: \"" + mContext.getString(R.string.gac) + "\"; Data: \"First " + mContext.getString(R.string.cdol_1) + "\" Hexadecimal: " + rFirstGacHexadecimal);
+                }
+
+                if (EmvUtil.isOk(rFirstGac)) {
+                    LogUtil.d(TAG, "EMV (R-APDU) - Command: \"" + mContext.getString(R.string.gac) + "\"; Data: \"First " + mContext.getString(R.string.cdol_1) + "\": Succeed");
+                } else {
+                    LogUtil.w(TAG, "EMV (R-APDU) - Command: \"" + mContext.getString(R.string.gac) + "\"; Data: \"First " + mContext.getString(R.string.cdol_1) + "\": Not succeed");
+
+                    // TODO: Get response SW1 & SW2, check response SW1 & SW2, log the result
+                }
+            }
+            // - First GAC (Generate Application Cryptogram)
         }
+
+        // CDOL2
+        if (cdol_2 != null) {
+            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.cdol_2) + " [8D]\": " + Arrays.toString(cdol_2));
+
+            String cdol_2Hexadecimal = HexUtil.bytesToHexadecimal(cdol_2);
+            if (cdol_2Hexadecimal != null) {
+                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.cdol_2) + " [8D]\" Hexadecimal: " + cdol_2Hexadecimal);
+            }
+        }
+        // - CDOL2
+        System.out.println("ended");
     }
+
 
     private void getAndLogHistoricalBytes() {
         try {
@@ -322,7 +369,7 @@ public class ReadPaycard implements Runnable {
         cPpse = PseUtil.selectPpse(null);
 
         if (cPpse != null) {
-            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.ppse) + "\": " + Arrays.toString(cPpse));
+//            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.ppse) + "\": " + Arrays.toString(cPpse));
             LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.ppse) + "\" Hexadecimal: " + HexUtil.bytesToHexadecimal(cPpse));
 
             try {
@@ -335,7 +382,7 @@ public class ReadPaycard implements Runnable {
             }
 
             if (rPpse != null) {
-                LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.ppse) + "\": " + Arrays.toString(rPpse));
+//                LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.ppse) + "\": " + Arrays.toString(rPpse));
 
                 String rPpseHexadecimal = HexUtil.bytesToHexadecimal(rPpse);
                 if (rPpseHexadecimal != null) {
@@ -398,7 +445,7 @@ public class ReadPaycard implements Runnable {
                                         isPayPass = true;
                                         aid = resultRes;
                                         //todo а че если не нашли
-                                        LogUtil.d(TAG, mContext.getString(R.string.aid) + " Found: " + Arrays.toString(resultRes));
+//                                        LogUtil.d(TAG, mContext.getString(R.string.aid) + " Found: " + Arrays.toString(resultRes));
                                     }
                                 }
                             }
@@ -431,7 +478,7 @@ public class ReadPaycard implements Runnable {
             }
         }
         if (cFci != null) {
-            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.fci) + "\": " + Arrays.toString(cFci));
+//            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.fci) + "\": " + Arrays.toString(cFci));
             LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Select\"; Data: \"" + mContext.getString(R.string.fci) + "\" Hexadecimal: " + HexUtil.bytesToHexadecimal(cFci));
         }
     }
@@ -441,7 +488,7 @@ public class ReadPaycard implements Runnable {
             applicationLabel = new TlvUtil().getTlvValue(rFci, ReadPaycardConstsHelper.APPLICATION_LABEL_TLV_TAG);
 
             if (applicationLabel != null) {
-                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_label) + " [50]\": " + Arrays.toString(applicationLabel));
+//                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_label) + " [50]\": " + Arrays.toString(applicationLabel));
                 String applicationLabelHexadecimal = HexUtil.bytesToHexadecimal(applicationLabel);
                 if (applicationLabelHexadecimal != null) {
                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_label) + " [50]\" Hexadecimal: " + applicationLabelHexadecimal);
@@ -461,7 +508,7 @@ public class ReadPaycard implements Runnable {
             signedAppTags = new TlvUtil().getTlvValue(rFci, ReadPaycardConstsHelper.SIGN_APP_TAGS);
 
             if (signedAppTags != null) {
-                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.sign_app_tags) + " [BF61]\": " + Arrays.toString(signedAppTags));
+//                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.sign_app_tags) + " [BF61]\": " + Arrays.toString(signedAppTags));
                 signedAppTagsHexadecimal = HexUtil.bytesToHexadecimal(signedAppTags);
                 if (signedAppTagsHexadecimal != null) {
                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.sign_app_tags) + " [BF61]\" Hexadecimal: " + signedAppTagsHexadecimal);
@@ -477,7 +524,7 @@ public class ReadPaycard implements Runnable {
             unsignedAppTags = new TlvUtil().getTlvValue(rFci, ReadPaycardConstsHelper.SIGN_APP_TAGS);
 
             if (unsignedAppTags != null) {
-                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.unsign_app_tags) + " [BF62]\": " + Arrays.toString(unsignedAppTags));
+//                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.unsign_app_tags) + " [BF62]\": " + Arrays.toString(unsignedAppTags));
                 unsignedAppTagsHexadecimal = HexUtil.bytesToHexadecimal(unsignedAppTags);
                 if (unsignedAppTagsHexadecimal != null) {
                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.unsign_app_tags) + " [BF62]\" Hexadecimal: " + unsignedAppTagsHexadecimal);
@@ -492,7 +539,7 @@ public class ReadPaycard implements Runnable {
         byte[] tempPdol = new TlvUtil().getTlvValue(rFci, ReadPaycardConstsHelper.PDOL_TLV_TAG);
         if (tempPdol != null && DolUtil.isValidDol(tempPdol, ReadPaycardConstsHelper.PDOL_TLV_TAG)) {
             pdol = tempPdol;
-            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.pdol) + " [9F38]\": " + Arrays.toString(pdol));
+//            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.pdol) + " [9F38]\": " + Arrays.toString(pdol));
             String pdolHexadecimal = HexUtil.bytesToHexadecimal(pdol);
             if (pdolHexadecimal != null) {
                 LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.pdol) + " [9F38]\" Hexadecimal: " + pdolHexadecimal);
@@ -502,7 +549,7 @@ public class ReadPaycard implements Runnable {
         // PDOL Constructed
         pdolConstructed = new GpoUtil().fillPdol(pdol);
         if (pdolConstructed != null) {
-            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.pdol) + " Constructed\": " + Arrays.toString(pdolConstructed));
+//            LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.pdol) + " Constructed\": " + Arrays.toString(pdolConstructed));
             String pdolConstructedHexadecimal = HexUtil.bytesToHexadecimal(pdolConstructed);
             if (pdolConstructedHexadecimal != null) {
                 LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.pdol) + " Constructed\" Hexadecimal: " + pdolConstructedHexadecimal);
@@ -516,7 +563,7 @@ public class ReadPaycard implements Runnable {
     private void performGpo() {
         cGpo = new GpoUtil().cGpo(pdolConstructed); // C-APDU & R-APDU
         if (cGpo != null) {
-            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Get Data\"; Data: \"" + mContext.getString(R.string.gpo) + "\": " + Arrays.toString(cGpo));
+//            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Get Data\"; Data: \"" + mContext.getString(R.string.gpo) + "\": " + Arrays.toString(cGpo));
             LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Get Data\"; Data: \"" + mContext.getString(R.string.gpo) + "\" Hexadecimal: " + HexUtil.bytesToHexadecimal(cGpo));
 
             try {
@@ -529,7 +576,7 @@ public class ReadPaycard implements Runnable {
         }
 
         if (rGpo != null) {
-            LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Get Data\"; Data: \"" + mContext.getString(R.string.gpo) + "\": " + Arrays.toString(rGpo));
+//            LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Get Data\"; Data: \"" + mContext.getString(R.string.gpo) + "\": " + Arrays.toString(rGpo));
             String rGpoHexadecimal = HexUtil.bytesToHexadecimal(rGpo);
             if (rGpoHexadecimal != null) {
                 LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Get Data\"; Data: \"" + mContext.getString(R.string.gpo) + "\" Hexadecimal: " + rGpoHexadecimal);
@@ -540,17 +587,17 @@ public class ReadPaycard implements Runnable {
         }
     }
 
-    private void getAfl(){
+    private void getAfl() {
         // Response message template 2 (with tags and lengths)
         if (rGpo[0] == ReadPaycardConstsHelper.GPO_RMT2_TLV_TAG[0]) {
             LogUtil.d(TAG, mContext.getString(R.string.gpo) + " Response message template 2");
-            byte[] gpoData77 ;
+            byte[] gpoData77;
             gpoData77 = new TlvUtil().getTlvValue(rGpo, ReadPaycardConstsHelper.GPO_RMT2_TLV_TAG);
             if (gpoData77 != null) {
                 // AFL (Application File Locator)
                 byte[] afl; // TLV (Type-length-value) tag specified for AFL (Application File Locator) and result variable
                 afl = new TlvUtil().getTlvValue(rGpo, ReadPaycardConstsHelper.AFL_TLV_TAG);
-                if (afl != null && afl.length % 4 ==0) {
+                if (afl != null && afl.length % 4 == 0) {
                     aflData = afl;
                 } else {
                     // todo длина не кратна 4
@@ -563,7 +610,7 @@ public class ReadPaycard implements Runnable {
         // - Response message template 2 (with tags and lengths)
     }
 
-    private void readAflRecords(){
+    private void readAflRecords() {
         RealmList<byte[]> cAflRecordsList = new RealmList<>(), rAflRecordsList = new RealmList<>();
         ArrayList<AflObject> aflObjectArrayList = new AflUtil().getAflDataRecords(aflData);
         if (aflObjectArrayList != null && !aflObjectArrayList.isEmpty()) {
@@ -571,7 +618,7 @@ public class ReadPaycard implements Runnable {
                 byte[] cReadRecord = aflObject.getReadCommand(), rReadRecord = null; // C-APDU & R-APDU
                 if (cReadRecord != null) {
                     cAflRecordsList.add(cReadRecord);
-                    LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(cReadRecord));
+//                    LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(cReadRecord));
                     LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Read Record\"; Data: \"Read Record\" Hexadecimal: " + HexUtil.bytesToHexadecimal(cReadRecord));
                     try {
                         rReadRecord = mIsoDep.transceive(cReadRecord);
@@ -584,7 +631,7 @@ public class ReadPaycard implements Runnable {
                 if (rReadRecord != null) {
                     rAflRecordsList.add(rReadRecord);
                     boolean succeedLe = false;
-                    LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(rReadRecord));
+//                    LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(rReadRecord));
                     String rReadRecordHexadecimal = HexUtil.bytesToHexadecimal(rReadRecord);
                     if (rReadRecordHexadecimal != null) {
                         LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Read Record\"; Data: \"Read Record\" Hexadecimal: " + rReadRecordHexadecimal);
@@ -595,7 +642,7 @@ public class ReadPaycard implements Runnable {
                         cReadRecord[cReadRecord.length - 1] = (byte) (rReadRecord.length - 1); // Custom Le
                         if (cReadRecord != null) {
                             cAflRecordsList.add(cReadRecord);
-                            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(cReadRecord));
+//                            LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(cReadRecord));
                             LogUtil.d(TAG, "EMV (C-APDU) - Command: \"Read Record\"; Data: \"Read Record\" Hexadecimal: " + HexUtil.bytesToHexadecimal(cReadRecord));
                             try {
                                 rReadRecord = mIsoDep.transceive(cReadRecord);
@@ -608,7 +655,7 @@ public class ReadPaycard implements Runnable {
 
                         if (rReadRecord != null) {
                             rAflRecordsList.add(rReadRecord);
-                            LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(rReadRecord));
+//                            LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Read Record\"; Data: \"Read Record\": " + Arrays.toString(rReadRecord));
                             String rReadRecordCustomLeHexadecimal = HexUtil.bytesToHexadecimal(rReadRecord);
                             if (rReadRecordCustomLeHexadecimal != null) {
                                 LogUtil.d(TAG, "EMV (R-APDU) - Command: \"Read Record\"; Data: \"Read Record\" Hexadecimal: " + rReadRecordCustomLeHexadecimal);
@@ -645,7 +692,7 @@ public class ReadPaycard implements Runnable {
                         if (applicationPan == null) {
                             applicationPan = new TlvUtil().getTlvValue(rReadRecord, ReadPaycardConstsHelper.APPLICATION_PAN_TLV_TAG);
                             if (applicationPan != null) {
-                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_pan) + " [5A]\": " + Arrays.toString(applicationPan));
+//                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_pan) + " [5A]\": " + Arrays.toString(applicationPan));
                                 String applicationPanHexadecimal = HexUtil.bytesToHexadecimal(applicationPan);
                                 if (applicationPanHexadecimal != null) {
                                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_pan) + " [5A]\" Hexadecimal: " + applicationPanHexadecimal);
@@ -656,7 +703,7 @@ public class ReadPaycard implements Runnable {
                         if (auc == null) {
                             auc = new TlvUtil().getTlvValue(rReadRecord, ReadPaycardConstsHelper.AUC_TLV_TAG);
                             if (auc != null) {
-                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.auc) + " [9F07]\": " + Arrays.toString(auc));
+//                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.auc) + " [9F07]\": " + Arrays.toString(auc));
                                 String aucHexadecimal = HexUtil.bytesToHexadecimal(auc);
                                 if (aucHexadecimal != null) {
                                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.auc) + " [9F07]\" Hexadecimal: " + aucHexadecimal);
@@ -668,7 +715,7 @@ public class ReadPaycard implements Runnable {
                         if (appInfo == null) {
                             appInfo = new TlvUtil().getTlvValue(rReadRecord, ReadPaycardConstsHelper.APPLICATION_INFO_TLV_TAG);
                             if (appInfo != null) {
-                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_info) + " [DF70]\": " + Arrays.toString(appInfo));
+//                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_info) + " [DF70]\": " + Arrays.toString(appInfo));
                                 String appInfoHexadecimal = HexUtil.bytesToHexadecimal(appInfo);
                                 if (appInfoHexadecimal != null) {
                                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_info) + " [DF70]\" Hexadecimal: " + appInfoHexadecimal);
@@ -680,7 +727,7 @@ public class ReadPaycard implements Runnable {
                         if (applicationStartDate == null) {
                             applicationStartDate = new TlvUtil().getTlvValue(rReadRecord, ReadPaycardConstsHelper.APPLICATION_START_DATE_TLV_TAG);
                             if (applicationStartDate != null) {
-                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.app_start_date) + " [5F25]\": " + Arrays.toString(applicationStartDate));
+//                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.app_start_date) + " [5F25]\": " + Arrays.toString(applicationStartDate));
                                 String applicationStartDateHexadecimal = HexUtil.bytesToHexadecimal(applicationStartDate);
                                 if (applicationStartDateHexadecimal != null) {
                                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.app_start_date) + " [5F25]\" Hexadecimal: " + applicationStartDateHexadecimal);
@@ -694,7 +741,7 @@ public class ReadPaycard implements Runnable {
                         if (cardholderName == null) {
                             cardholderName = new TlvUtil().getTlvValue(rReadRecord, ReadPaycardConstsHelper.CARDHOLDER_NAME_TLV_TAG);
                             if (cardholderName != null) {
-                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.cardholder_name) + " [5F20]\": " + Arrays.toString(cardholderName));
+//                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.cardholder_name) + " [5F20]\": " + Arrays.toString(cardholderName));
                                 String cardholderNameHexadecimal = HexUtil.bytesToHexadecimal(cardholderName);
                                 if (cardholderNameHexadecimal != null) {
                                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.cardholder_name) + " [5F20]\" Hexadecimal: " + cardholderNameHexadecimal);
@@ -712,7 +759,7 @@ public class ReadPaycard implements Runnable {
                         if (applicationExpirationDate == null) {
                             applicationExpirationDate = new TlvUtil().getTlvValue(rReadRecord, ReadPaycardConstsHelper.APPLICATION_EXPIRATION_DATE_TLV_TAG);
                             if (applicationExpirationDate != null) {
-                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_expiration_date) + "[5F24]\": " + Arrays.toString(applicationExpirationDate));
+//                                LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_expiration_date) + "[5F24]\": " + Arrays.toString(applicationExpirationDate));
                                 String applicationExpirationDateHexadecimal = HexUtil.bytesToHexadecimal(applicationExpirationDate);
                                 if (applicationExpirationDateHexadecimal != null) {
                                     LogUtil.d(TAG, "EMV (TLV) - Data: \"" + mContext.getString(R.string.application_expiration_date) + " [5F24]\" Hexadecimal: " + applicationExpirationDateHexadecimal);

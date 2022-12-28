@@ -43,16 +43,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button customToolbarSupportedPaycardsButton = findViewById(R.id.custom_toolbar_supported_paycards_button);
-        customToolbarSupportedPaycardsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSupportedPaycardsDialog = new Dialog(MainActivity.this);
-                mSupportedPaycardsDialog.setContentView(R.layout.dialog_supported_paycards);
-                mSupportedPaycardsDialog.setCancelable(true);
-                mSupportedPaycardsDialog.show();
-            }
-        });
 
         ArrayList<TabLayoutFragmentPagerAdapter.ITabLayoutFragmentPagerAdapter> arrayList = new ArrayList<>();
         arrayList.add(new PaycardsTabFragment());
@@ -61,61 +51,61 @@ public class MainActivity extends AppCompatActivity {
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(new TabLayoutFragmentPagerAdapter(getSupportFragmentManager(), arrayList));
 
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+//        TabLayout tabLayout = findViewById(R.id.tab_layout);
+//        tabLayout.setupWithViewPager(viewPager);
+//
+//        final int tabIconColor = ContextCompat.getColor(getApplicationContext(), R.color.tabTextColor);
+//        final int tabSelectedIconColor = ContextCompat.getColor(getApplicationContext(), R.color.tabSelectedTextColor);
+//
+//        Objects.requireNonNull(tabLayout.getTabAt(0)).setIcon(arrayList.get(0).getIcon());
+//
+//        Objects.requireNonNull(Objects.requireNonNull(tabLayout.getTabAt(0)).getIcon()).setColorFilter(tabSelectedIconColor, PorterDuff.Mode.SRC_IN);
+//
+//        for (int i = 1; i < arrayList.size(); i++) {
+//            Objects.requireNonNull(tabLayout.getTabAt(i)).setIcon(arrayList.get(i).getIcon());
+//
+//            Objects.requireNonNull(Objects.requireNonNull(tabLayout.getTabAt(i)).getIcon()).setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
+//        }
+//
+//        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
+//            @Override
+//            public void onTabSelected(TabLayout.Tab tab) {
+//                super.onTabSelected(tab);
+//                LogUtil.d(TAG, "Tab select");
+//
+//                if (tab.getText() != null) {
+//                    LogUtil.i(TAG, "Tab select: " + tab.getText());
+//                }
+//
+//                if (tab.getIcon() != null) {
+//                    tab.getIcon().setColorFilter(tabSelectedIconColor, PorterDuff.Mode.SRC_IN);
+//                }
+//            }
 
-        final int tabIconColor = ContextCompat.getColor(getApplicationContext(), R.color.tabTextColor);
-        final int tabSelectedIconColor = ContextCompat.getColor(getApplicationContext(), R.color.tabSelectedTextColor);
-
-        Objects.requireNonNull(tabLayout.getTabAt(0)).setIcon(arrayList.get(0).getIcon());
-
-        Objects.requireNonNull(Objects.requireNonNull(tabLayout.getTabAt(0)).getIcon()).setColorFilter(tabSelectedIconColor, PorterDuff.Mode.SRC_IN);
-
-        for (int i = 1; i < arrayList.size(); i++) {
-            Objects.requireNonNull(tabLayout.getTabAt(i)).setIcon(arrayList.get(i).getIcon());
-
-            Objects.requireNonNull(Objects.requireNonNull(tabLayout.getTabAt(i)).getIcon()).setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
-        }
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                super.onTabSelected(tab);
-                LogUtil.d(TAG, "Tab select");
-
-                if (tab.getText() != null) {
-                    LogUtil.i(TAG, "Tab select: " + tab.getText());
-                }
-
-                if (tab.getIcon() != null) {
-                    tab.getIcon().setColorFilter(tabSelectedIconColor, PorterDuff.Mode.SRC_IN);
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                super.onTabUnselected(tab);
-                LogUtil.d(TAG, "Tab unselect");
-
-                if (tab.getText() != null) {
-                    LogUtil.i(TAG, "Tab unselect: " + tab.getText());
-                }
-
-                if (tab.getIcon() != null) {
-                    tab.getIcon().setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
-                }
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                super.onTabReselected(tab);
-                LogUtil.d(TAG, "Tab reselect");
-
-                if (tab.getText() != null) {
-                    LogUtil.i(TAG, "Tab reselect: " + tab);
-                }
-            }
-        });
+//            @Override
+//            public void onTabUnselected(TabLayout.Tab tab) {
+//                super.onTabUnselected(tab);
+//                LogUtil.d(TAG, "Tab unselect");
+//
+//                if (tab.getText() != null) {
+//                    LogUtil.i(TAG, "Tab unselect: " + tab.getText());
+//                }
+//
+//                if (tab.getIcon() != null) {
+//                    tab.getIcon().setColorFilter(tabIconColor, PorterDuff.Mode.SRC_IN);
+//                }
+//            }
+//
+//            @Override
+//            public void onTabReselected(TabLayout.Tab tab) {
+//                super.onTabReselected(tab);
+//                LogUtil.d(TAG, "Tab reselect");
+//
+//                if (tab.getText() != null) {
+//                    LogUtil.i(TAG, "Tab reselect: " + tab);
+//                }
+//            }
+//        });
 
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_NFC_HOST_CARD_EMULATION)) {
             ComponentName paymentServiceComponentName = new ComponentName(this, PaymentHostApduService.class);

@@ -94,33 +94,22 @@
                 android:layout_height="0.6dp"
                 android:background="#9F9F9F" />
 
-            <TextView
-                android:id="@+id/activity_read_paycard_description_subhead"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/description_activity_read_paycard"
-                android:textColor="@color/colorPrimary"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead" />
+<!--            <TextView-->
+<!--                android:id="@+id/activity_read_paycard_description_subhead"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="@dimen/activity_vertical_margin"-->
+<!--                android:layout_marginBottom="@dimen/activity_vertical_margin"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:gravity="center"-->
+<!--                android:text="@string/description_activity_read_paycard"-->
+<!--                android:textColor="@color/colorPrimary"-->
+<!--                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead" />-->
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.6dp"
                 android:background="#9F9F9F" />
-
-            <TextView
-                android:id="@+id/activity_read_paycard_nfc_hardware_help"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/nfc_hardware_help"
-                android:textColor="#9F9F9F"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead" />
 
         </LinearLayout>
 

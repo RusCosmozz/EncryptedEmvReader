@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">NFC EMV Payer</string>
+    <string name="app_name">Encrypted NFC EMV Reader</string>
+    <string name="app_desciption">Тестовое приложения для демонстрации работы EMV-считывателя</string>
 
     <!-- Receiver -->
     <string name="receiver">Receiver</string>
@@ -30,7 +31,7 @@
 
     <string name="contactless">Contactless</string>
 
-    <string name="title_activity_read_paycard">Read Paycard</string>
+    <string name="title_activity_read_paycard">Приложите банковскую карту</string>
     <string name="description_activity_read_paycard">Hold contactless EMV paycard near the device NFC hardware in order to begin read.</string>
 
     <string name="title_activity_host_paycard">Host Paycard</string>
@@ -38,13 +39,13 @@
 
     <string name="nfc_hardware_help">Device NFC hardware is located in or near the device back panel on most NFC phones and tablets.</string>
 
-    <string name="description_waiting_app_compat_activity_read_host">Waiting for tag…</string>
+    <string name="description_waiting_app_compat_activity_read_host">Ожидание карты</string>
     <string name="description_warning_app_compat_activity_read_host">Do not move the paycard or the device until process finished.</string>
 
-    <string name="no_paycards">No paycards added</string>
+    <string name="no_paycards">Провести тестовое списание</string>
     <string name="no_payments">No payments made</string>
 
-    <string name="add_new_paycard_subtitle">Consider adding a new one.</string>
+    <string name="add_new_paycard_subtitle">100 рублей</string>
     <string name="add_new_payment_subtitle">Consider making a new one.</string>
 
     <string name="read">Read</string>
@@ -75,6 +76,7 @@
     <string name="application_label">Application Label</string>
     <string name="df_name">Dedicated File Name</string>
     <string name="fci_template">FCI Template</string>
+    <string name="lang">Preferred language</string>
     <string name="sign_app_tags">Signed App Tags</string>
     <string name="unsign_app_tags">Unsigned App Tags</string>
     <string name="pdol">PDOL (Processing Options Data Object List)</string>

@@ -61,6 +61,27 @@
                 android:textColor="@color/colorPrimary" />
             <!--android:layout_toEndOf="@id/custom_toolbar_logo"-->
         </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#EFEFEF">
+
+            <TextView
+                android:id="@+id/description_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="@dimen/activity_margin"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:text="@string/app_desciption"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary" />
+            <!--android:layout_toEndOf="@id/custom_toolbar_logo"-->
+        </RelativeLayout>
 
         <View
             android:layout_width="match_parent"
@@ -72,30 +93,19 @@
             android:layout_height="wrap_content"
             android:background="#EFEFEF">
 
-            <Button
-                android:id="@+id/custom_toolbar_supported_paycards_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/activity_margin"
-                android:paddingStart="@dimen/activity_horizontal_margin_double"
-                android:paddingEnd="@dimen/activity_horizontal_margin_double"
-                android:text="@string/supported_paycards"
-                android:textAllCaps="true"
-                android:layout_centerHorizontal="true" />
-
         </RelativeLayout>
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/tabBackgroundColor"
-            app:tabMode="fixed"
-            app:tabGravity="fill"
-            app:tabMaxWidth="0dp"
-            app:tabTextColor="@color/tabTextColor"
-            app:tabIndicatorColor="@color/tabIndicatorColor"
-            app:tabSelectedTextColor="@color/tabSelectedTextColor" />
+<!--        <android.support.design.widget.TabLayout-->
+<!--            android:id="@+id/tab_layout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@color/tabBackgroundColor"-->
+<!--            app:tabMode="fixed"-->
+<!--            app:tabGravity="fill"-->
+<!--            app:tabMaxWidth="0dp"-->
+<!--            app:tabTextColor="@color/tabTextColor"-->
+<!--            app:tabIndicatorColor="@color/tabIndicatorColor"-->
+<!--            app:tabSelectedTextColor="@color/tabSelectedTextColor" />-->
 
     </android.support.design.widget.AppBarLayout>
 

@@ -71,7 +71,7 @@ public class LogUtil {
 
         if (tag != null) {
             try {
-                Log.d(tag, msg);
+                Log.d("", msg);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 System.out.println(e.toString());

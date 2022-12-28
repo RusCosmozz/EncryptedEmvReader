@@ -41,11 +41,11 @@ public class ReadPaycardActivity extends AppCompatActivity {
     // - Receiver(s)
 
     private void nfcNotSupported() {
-        LogUtil.w(TAG, "NFC Not Supported");
+        LogUtil.w(TAG, "NFC не поддерживается");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("NFC Not Supported");
-        builder.setMessage("Your device does not support NFC feature.");
+        builder.setTitle("NFC не поддерживается");
+        builder.setMessage("Чтение карты невозможно, тк ваше устройство не поддерживает NFC");
         builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

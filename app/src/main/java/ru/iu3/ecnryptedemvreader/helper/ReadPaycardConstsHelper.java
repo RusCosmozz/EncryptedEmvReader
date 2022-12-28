@@ -148,6 +148,11 @@ public class ReadPaycardConstsHelper {
             (byte) 0xA5
     };
 
+    public static final byte[] LANGUAGE_TLV = {
+            (byte) 5F,
+            (byte) 2D
+    };
+
     public static final byte[] SIGN_APP_TAGS = {
             (byte) 0xBF,
             (byte) 0x61

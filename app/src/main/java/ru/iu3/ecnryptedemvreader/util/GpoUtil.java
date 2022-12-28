@@ -219,7 +219,7 @@ public class GpoUtil {
                             };
                         }
 
-                        // TERMINAL_TYPE_TLV_TAG ; 9F35; 1 Byte(s)
+                        // ADDITIONAL_TERMINAL_CAPABILITIES_TLV_TAG ; 9F35; 1 Byte(s)
                         else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.ADDITIONAL_TERMINAL_CAPABILITIES_TLV_TAG)) {
                             LogUtil.d(TAG, "Generate PDOL -> Amount, Other (Numeric); " + "9F03" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
                             resultValue = new byte[]{

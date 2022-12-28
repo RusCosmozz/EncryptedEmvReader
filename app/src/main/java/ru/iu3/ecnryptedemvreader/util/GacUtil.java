@@ -123,7 +123,13 @@ public class GacUtil {
                             resultValue = Arrays.copyOf(data, data.length);
                         }
                         // - TTQ (Terminal Transaction Qualifiers); 9F66; 4 Byte(s)
-
+                        // LVP_SUPPORT_TLV_TAG; 9F7A; 4 Byte(s)
+                        else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.LVP_SUPPORT_TLV_TAG)) {
+                            LogUtil.d(TAG, "Generate PDOL -> LVP Supports; " + "9F7A" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
+                            resultValue = new byte[]{
+                                    (byte) 0x01
+                            };
+                        }
                         // Amount, Authorised (Numeric); 9F02; 6 Byte(s)
                         else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.AMOUNT_AUTHORISED_TLV_TAG)) {
                             LogUtil.d(TAG, "Generate CDOL1 -> Amount, Authorised (Numeric); " + "9F02" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
@@ -141,13 +147,6 @@ public class GacUtil {
                         }
                         // - Amount, Authorised (Numeric); 9F02; 6 Byte(s)
 
-                        // LVP_SUPPORT_TLV_TAG; 9F7A; 4 Byte(s)
-                         else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.LVP_SUPPORT_TLV_TAG)) {
-                            LogUtil.d(TAG, "Generate PDOL -> LVP Supports; " + "9F7A" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
-                            resultValue = new byte[]{
-                                    (byte) 0x01
-                            };
-                        }
                         // ADDITIONAL_TERMINAL_CAPABILITIEs; 9F40; 5 Byte(s)
                         else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.ADDITIONAL_TERMINAL_CAPABILITIES_TLV_TAG)) {
                             LogUtil.d(TAG, "Generate PDOL -> Additional terminal capabilities; " + "9F40" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
@@ -179,14 +178,28 @@ public class GacUtil {
                             };*/
                         }
                         // - Amount, Other (Numeric); 9F03; 6 Byte(s)
+                        // TERMINAL_TYPE_TLV_TAG ; 9F35; 1 Byte(s)
+                        else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.TERMINAL_TYPE_TLV_TAG)) {
+                            LogUtil.d(TAG, "Generate CDOL1 -> Terminal Type; " + "9F35" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
+                            resultValue = new byte[]{
+                                    (byte) 0x01
+                            };
+                        }
 
+                        // ADDITIONAL_TERMINAL_CAPABILITIES_TLV_TAG ; 9F35; 1 Byte(s)
+                        else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.ADDITIONAL_TERMINAL_CAPABILITIES_TLV_TAG)) {
+                            LogUtil.d(TAG, "Generate CDOL1 -> Additional Terminal Capabilities; " + "9F40" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
+                            resultValue = new byte[]{
+                                    (byte) 0x01
+                            };
+                        }
                         // Terminal Country Code; 9F1A; 2 Byte(s)
                         else if (Arrays.equals(tlvObject.getTlvTag(), ReadPaycardConstsHelper.TERMINAL_COUNTRY_CODE_TLV_TAG)) {
                             LogUtil.d(TAG, "Generate CDOL1 -> Terminal Country Code; " + "9F1A" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
 
                             resultValue = new byte[]{
-                                    (byte) 0x01,
-                                    (byte) 0x00
+                                    (byte) 0x06,
+                                    (byte) 0x43
                             };
 
                             // https://en.wikipedia.org/wiki/ISO_3166-1
@@ -200,8 +213,8 @@ public class GacUtil {
                             LogUtil.d(TAG, "Generate CDOL1 -> Transaction Currency Code; " + "5F2A" + "; " + tlvObject.getTlvTagLength() + " Byte(s)");
 
                             resultValue = new byte[]{
-                                    (byte) 0x09,
-                                    (byte) 0x75
+                                    (byte) 0x06,
+                                    (byte) 0x43
                             };
 
                             // https://en.wikipedia.org/wiki/ISO_4217
