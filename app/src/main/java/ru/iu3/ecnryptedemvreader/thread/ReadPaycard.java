@@ -21,13 +21,11 @@ import ru.iu3.ecnryptedemvreader.util.DolUtil;
 import ru.iu3.ecnryptedemvreader.util.EmvUtil;
 import ru.iu3.ecnryptedemvreader.util.GacUtil;
 import ru.iu3.ecnryptedemvreader.util.GpoUtil;
-import ru.iu3.ecnryptedemvreader.util.GpoUtil2;
 import ru.iu3.ecnryptedemvreader.util.HexUtil;
 import ru.iu3.ecnryptedemvreader.util.LogUtil;
 import ru.iu3.ecnryptedemvreader.util.PseUtil;
 import ru.iu3.ecnryptedemvreader.util.TlvUtil;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;

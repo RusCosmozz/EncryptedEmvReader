@@ -240,6 +240,10 @@ public class ReadPaycardConstsHelper {
             (byte) 0x9F,
             (byte) 0x1A
     }; // Terminal Country Code
+    public static final byte[] CVM_TLV_TAG = {
+            (byte) 0x9F,
+            (byte) 0x34
+    }; // Terminal Country Code
 
     public static final byte[] TERMINAL_FLOOR_LIMIT_TLV_TAG = {
             (byte) 0x9F,

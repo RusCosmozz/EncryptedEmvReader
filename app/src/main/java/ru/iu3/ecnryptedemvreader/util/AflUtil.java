@@ -14,79 +14,55 @@ public class AflUtil {
 
     @Nullable
     public ArrayList<AflObject> getAflDataRecords(@NonNull byte[] aflData) {
-        // Returning result
-        ArrayList<AflObject> result = null;
-        // - Returning result
+        if (aflData.length < 4) {
+            LogUtil.e(TAG, "Cannot perform AFL data byte array actions, available bytes < 4; Length is " + aflData.length);
+            return null;
+        }
 
-        LogUtil.d(TAG, "AFL Data Length: " + aflData.length);
+        ArrayList<AflObject> result = new ArrayList<>();
 
-        if (aflData.length < 4) { // At least 4 bytes length needed to go ahead
-            try {
-                throw new Exception("Cannot preform AFL data byte array actions, available bytes < 4; Length is " + aflData.length);
-            } catch (Exception e) {
-                LogUtil.e(TAG, e.getMessage());
-                LogUtil.e(TAG, e.toString());
+        for (int i = 0; i < aflData.length / 4; i++) {
+            int firstRecordNumber = aflData[4 * i + 1], lastRecordNumber = aflData[4 * i + 2];
+            int sfi = aflData[4 * i] >> 3;
 
-                e.printStackTrace();
-            }
-        } else {
-            result = new ArrayList<>();
+            for (int recordNumber = firstRecordNumber; recordNumber <= lastRecordNumber; recordNumber++) {
+                AflObject aflObject = new AflObject();
+                aflObject.setSfi(sfi);
+                aflObject.setRecordNumber(recordNumber);
 
-            for (int i = 0; i < aflData.length / 4; i++) {
-                int firstRecordNumber = aflData[4 * i + 1], lastRecordNumber = aflData[4 * i + 2]; // First record number & final record number
+                byte[] readCommand = new byte[] {
+                        (byte) 0x00,
+                        (byte) 0xB2,
+                        (byte) recordNumber,
+                        (byte) ((sfi << 0x03) | 0x04),
+                        0x00
+                };
 
-                while (firstRecordNumber <= lastRecordNumber) {
-                    AflObject aflObject = new AflObject();
-                    aflObject.setSfi(aflData[4 * i] >> 3); // SFI (Short File Identifier)
-                    aflObject.setRecordNumber(firstRecordNumber);
-
-                    byte[] cReadRecord = null;
-
-                    ByteArrayOutputStream readRecordByteArrayOutputStream = null;
-                    try {
-                        readRecordByteArrayOutputStream = new ByteArrayOutputStream();
-                    } catch (Exception e) {
-                        LogUtil.e(TAG, e.getMessage());
-                        LogUtil.e(TAG, e.toString());
-
-                        e.printStackTrace();
-                    }
-
-                    if (readRecordByteArrayOutputStream != null) {
-                        try {
-                            readRecordByteArrayOutputStream.write(ReadPaycardConstsHelper.READ_RECORD);
-
-                            readRecordByteArrayOutputStream.write(new byte[]{
-                                    (byte) aflObject.getRecordNumber(),
-                                    (byte) ((aflObject.getSfi() << 0x03) | 0x04),
-                            });
-
-                            readRecordByteArrayOutputStream.write(new byte[]{
-                                    (byte) 0x00 // Le
-                            });
-
-                            readRecordByteArrayOutputStream.close();
-
-                            cReadRecord = readRecordByteArrayOutputStream.toByteArray();
-                        } catch (Exception e) {
-                            LogUtil.e(TAG, e.getMessage());
-                            LogUtil.e(TAG, e.toString());
-
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (cReadRecord != null) {
-                        aflObject.setReadCommand(cReadRecord);
-                    }
-
-                    result.add(aflObject);
-
-                    firstRecordNumber++;
-                }
+                aflObject.setReadCommand(readCommand);
+                result.add(aflObject);
             }
         }
 
         return result;
     }
+
+
+    private byte[] buildReadCommand(int sfi, int recordNumber) {
+        ByteArrayOutputStream readRecordByteArrayOutputStream = new ByteArrayOutputStream();
+
+        try {
+            readRecordByteArrayOutputStream.write(ReadPaycardConstsHelper.READ_RECORD);
+            readRecordByteArrayOutputStream.write(new byte[]{
+                    (byte) recordNumber,
+                    (byte) ((sfi << 0x03) | 0x04),
+            });
+            readRecordByteArrayOutputStream.write(new byte[]{ (byte) 0x00 });
+        } catch (Exception e) {
+            LogUtil.e(TAG, e.getMessage());
+            LogUtil.e(TAG, e.toString());
+        }
+
+        return readRecordByteArrayOutputStream.toByteArray();
+    }
+
 }
