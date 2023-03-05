@@ -8,92 +8,42 @@ import java.util.Arrays;
 public class EmvUtil {
     private static final String TAG = EmvUtil.class.getName();
 
-    // APDU (Application Protocol Data Unit) - Get response status words (bytes)
+    /**
+     * Check if the EMV response is correct and has the correct status
+     *
+     * @param emvResponse the EMV response to check
+     * @return true if the response is correct, false otherwise
+     */
     @Nullable
-    public static byte[] getSwBytes(@NonNull byte[] bytesIn) {
-        // Returning result
-        byte[] result = null;
-        // - Returning result
-
-        if (bytesIn.length < 2) {
-            try {
-                throw new Exception("Invalid response bytes");
-            } catch (Exception e) {
-                LogUtil.e(TAG, e.getMessage());
-                LogUtil.e(TAG, e.toString());
-
-                e.printStackTrace();
-            }
+    public static boolean isOk(@NonNull byte[] emvResponse) {
+        // Check if the EMV response has SW bytes
+        byte[] swBytes = getSwBytes(emvResponse);
+        if (swBytes == null) {
+            // No SW bytes found in EMV response
+            return false;
         }
 
-        try {
-            result = Arrays.copyOfRange(
-                    bytesIn, // Original
-                    bytesIn.length - 2, // From (to retrieve SW1 & SW2)
-                    bytesIn.length // To
-            );
-        } catch (Exception e) {
-            LogUtil.e(TAG, e.getMessage());
-            LogUtil.e(TAG, e.toString());
-
-            e.printStackTrace();
-        }
-
-        return result;
+        // Check if the SW bytes are correct (0x9000)
+        return Arrays.equals(swBytes, new byte[] {(byte) 0x90, (byte) 0x00});
     }
-    // - APDU (Application Protocol Data Unit) - Get response status words (bytes)
 
-    // APDU (Application Protocol Data Unit) - Get response status words (hexadecimal)
+    /**
+     * Extract the SW bytes from the EMV response
+     *
+     * @param emvResponse the EMV response
+     * @return the SW bytes, or null if not found
+     */
     @Nullable
-    public static String getSwHexadecimal(@NonNull byte[] bytesIn) {
-        // Returning result
-        String result = null;
-        // - Returning result
+    public static byte[] getSwBytes(@NonNull byte[] emvResponse) {
+        byte[] swBytes = null;
 
-        byte[] bytesResult = getSwBytes(bytesIn);
-
-        if (bytesResult != null) {
-            try {
-                result = HexUtil.bytesToHexadecimal(bytesResult);
-            } catch (Exception e) {
-                LogUtil.e(TAG, e.getMessage());
-                LogUtil.e(TAG, e.toString());
-
-                e.printStackTrace();
-            }
+        // Check if the EMV response has at least 2 bytes
+        if (emvResponse.length >= 2) {
+            // Extract the last 2 bytes (SW bytes)
+            swBytes = new byte[]{emvResponse[emvResponse.length - 2], emvResponse[emvResponse.length - 1]};
         }
 
-        return result;
+        return swBytes;
     }
-    // - APDU (Application Protocol Data Unit) - Get response status words (hexadecimal)
 
-    // APDU (Application Protocol Data Unit) - Check if response succeed
-    @Nullable
-    public static boolean isOk(@NonNull byte[] bytesIn) {
-        // Returning result
-        boolean result = false;
-        // - Returning result
-
-        byte[] bytesResult = getSwBytes(bytesIn);
-
-        if (bytesResult != null) {
-            try {
-                result = Arrays.equals(
-                        bytesResult,
-                        new byte[]{
-                                (byte) 0x90,
-                                (byte) 0x00
-                        }
-                );
-            } catch (Exception e) {
-                LogUtil.e(TAG, e.getMessage());
-                LogUtil.e(TAG, e.toString());
-
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
-    // - APDU (Application Protocol Data Unit) - Check if response succeed
 }
